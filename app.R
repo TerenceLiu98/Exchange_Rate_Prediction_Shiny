@@ -114,7 +114,7 @@ ui <- dashboardPage(
                     
                     # Input: Choose dataset ----
                     selectInput("dataset", "Choose a dataset:",
-                                choices = c("USD - INR", "USD - CNY")),
+                                choices = c("USD_INR", "USD_CNY")),
                     
                     # Button
                     downloadButton("downloadData", "Download"),
@@ -188,8 +188,8 @@ server <- function(input, output, session) {
   
   datasetInput <- reactive({
     switch(input$dataset,
-           "USD - INR" = INR,
-           "USD - CNY" = CNY)
+           "USD_INR" = INR,
+           "USD_CNY" = CNY)
   })
   
   # Table of selected dataset ----
