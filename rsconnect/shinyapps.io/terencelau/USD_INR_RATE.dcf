@@ -1,0 +1,12 @@
+name: USD_INR_RATE
+title: USD_INR_RATE
+username:
+account: terencelau
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1082841
+bundleId: 2314224
+url: https://terencelau.shinyapps.io/USD_INR_RATE/
+when: 1565678303.31647
+asMultiple: FALSE
+asStatic: FALSE
