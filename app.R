@@ -119,7 +119,8 @@ ui <- dashboardPage(
                     # Button
                     downloadButton("downloadData", "Download"),
                     tags$article("Data source:"),
-                    tags$article("https://investing.com")
+                    tags$a(href = "https://www.investing.com/currencies/usd-inr-historical-data", "USD - INR hist data"),
+                    tags$a(href = "https://www.investing.com/currencies/usd-cny-historical-data", "USD - CNY hist data")
                   ),
                   
                   # Main panel for displaying outputs ----
