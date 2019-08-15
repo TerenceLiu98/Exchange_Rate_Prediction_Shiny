@@ -2,6 +2,8 @@
 library(shiny)
 library(shinydashboard)
 library(DT)
+library(quantmod)
+
 # source("./libraries.R")
 # source("./functions.R")
 
@@ -33,18 +35,33 @@ FT_Kplot<-function(OPEN,HIGH,LOW,CLOSE,DATE)
   axis(side=1,Index,labels=Text,cex.axis=1)
 }
 
-INR <- read.csv("USD_INR.csv", header = T)
-INR$Date <- as.Date(as.character(INR$Date), format = '%B %d, %Y')
+# INR <- read.csv("USD_INR.csv", header = T)
+# INR$Date <- as.Date(as.character(INR$Date), format = '%B %d, %Y')
+# 
+# CNY <- read.csv("USD_CNY.csv", header = T)
+# CNY$Date <- as.Date(as.character(CNY$Date), format = '%B %d, %Y')
 
-CNY <- read.csv("USD_CNY.csv", header = T)
-CNY$Date <- as.Date(as.character(CNY$Date), format = '%B %d, %Y')
+getFX("USD/INR",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 30),to = Sys.Date())
+getFX("USD/CNY",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 30),to = Sys.Date())
+
+write.zoo(USDINR, file = "INR.csv",  sep = ",", qmethod = "double")
+write.zoo(USDCNY, file = "CNY.csv",  sep = ",", qmethod = "double")
+
+INR <- read.csv("INR.csv", header = T)
+colnames(INR)[1] <- 'Date'
+colnames(INR)[2] <- 'Price'
+
+CNY <- read.csv("CNY.csv", header = T)
+colnames(CNY)[1] <- 'Date'
+colnames(CNY)[2] <- 'Price'
+
 
 
 
 
 ui <- dashboardPage(
   skin = "black",
-  dashboardHeader(title = "USD-INR Exchange Rate"),
+  dashboardHeader(title = "CERFIS"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
@@ -59,17 +76,7 @@ ui <- dashboardPage(
       # First tab content
       tabItem(tabName = "dashboard",
               fluidPage(
-                fileInput("INR", "Choose You CSV File",
-                          accept = c(
-                            "text/csv",
-                            "text/comma-separated-values,text/plain",
-                            ".csv")
-                ),
-                checkboxInput("header", "Header", TRUE),
-                tags$br(),
-                # tags$strong("The Dataset must contain Date and Price"),
-                tags$br(),
-                tags$br(),
+                h3("Currency Exchange Rate Forecast Interactive System"),
                 tags$strong("Step One: Input your data"),
                 tags$article("One the Dataset, we have prepared two csv File for you to run this demo"),
                 tags$br(),
@@ -77,7 +84,19 @@ ui <- dashboardPage(
                 tags$strong("Step Two: adjust the time interval"),
                 tags$article("choosing the right inveral is the key to get a good forecast, recommended value is one to two month")
               ),
+                tags$br(),
+                tags$br(),
               column(8,
+              fileInput("INR", "Choose You CSV File",
+                        accept = c(
+                          "text/csv",
+                          "text/comma-separated-values,text/plain",
+                          ".csv")
+              ),
+              checkboxInput("header", "Header", TRUE),
+              tags$br(),
+              # tags$strong("The Dataset must contain Date and Price"),
+              tags$br(),
                 #box(status = "warning", solidHeader = TRUE, collapsible = TRUE, plotOutput("plot1", height = 500, width = "150%"))
                   plotOutput("plot1", width = "100%")
                 # Copy the line below to make a text input box
