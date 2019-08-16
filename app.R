@@ -41,8 +41,8 @@ FT_Kplot<-function(OPEN,HIGH,LOW,CLOSE,DATE)
 # CNY <- read.csv("USD_CNY.csv", header = T)
 # CNY$Date <- as.Date(as.character(CNY$Date), format = '%B %d, %Y')
 
-getFX("USD/INR",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 30),to = Sys.Date())
-getFX("USD/CNY",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 30),to = Sys.Date())
+getFX("USD/INR",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 56),to = Sys.Date())
+getFX("USD/CNY",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 56),to = Sys.Date())
 
 write.zoo(USDINR, file = "INR.csv",  sep = ",", qmethod = "double")
 write.zoo(USDCNY, file = "CNY.csv",  sep = ",", qmethod = "double")
@@ -78,7 +78,7 @@ ui <- dashboardPage(
               fluidPage(
                 h3("Currency Exchange Rate Forecast Interactive System"),
                 tags$strong("Step One: Input your data"),
-                tags$article("One the Dataset, we have prepared two csv File for you to run this demo"),
+                tags$article("On the Sidebar tag:Dataset, we have prepared the File for you to run "),
                 tags$br(),
                 tags$br(),
                 tags$strong("Step Two: adjust the time interval"),
@@ -87,7 +87,7 @@ ui <- dashboardPage(
                 tags$br(),
                 tags$br(),
               column(8,
-              fileInput("INR", "Choose You CSV File",
+              fileInput("inputdata", "Choose You CSV File",
                         accept = c(
                           "text/csv",
                           "text/comma-separated-values,text/plain",
@@ -138,15 +138,16 @@ ui <- dashboardPage(
                     # Button
                     downloadButton("downloadData", "Download"),
                     tags$article("Data source:"),
-                    tags$a(href = "https://www.investing.com/currencies/usd-inr-historical-data", "USD - INR hist data"),
-                    tags$a(href = "https://www.investing.com/currencies/usd-cny-historical-data", "USD - CNY hist data")
+                    tags$a(href = "https://finance.yahoo.com/quote/INR%3DX?p=INR%3DX", "USD - INR hist data"),
+                    tags$br(),
+                    tags$a(href = "https://finance.yahoo.com/quote/CNY%3DX?p=CNY%3DX", "USD - CNY hist data")
                   ),
                   
                   # Main panel for displaying outputs ----
                   mainPanel(
-                    
-                    tableOutput("table")
-                    
+                         DT::dataTableOutput("table",width = 300)
+                  ))
+                  #  tableOutput("table")
                   )
                   
                 )
@@ -158,31 +159,29 @@ ui <- dashboardPage(
                   titlePanel("About Author"),
                   h5("I am Terence Lau"),
                   h5("My Github: @terenceliu98"),
-                  h5("My Personal Website: https://terenceliu98.github.io")
+                  h5("My Personal Website: https://terenceliu98.github.io"),
+                  h5("Thanks to these R package: shiny, shinydashboard, DT, quantmod")
+                  
                 )
     )
   )
-  )
-)
 
 server <- function(input, output, session) {
 
   output$plot1 <- renderPlot({
-    inFile <- input$INR
+    inFile <- input$inputdata
     inFile <- as.data.frame(inFile)
     if (is.null(inFile))
       return(NULL)
     
     inFile <- read.csv(inFile$datapath, header = input$header)
-    inFile$Date <- as.Date(as.character(inFile$Date), format = '%B %d, %Y')
-    model <- loess(Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]~as.numeric(Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]), data = inFile, control=loess.control(surface="direct"))
-    par(mfrow = c(3, 1))
-    plot(x = inFile$Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], y = inFile$Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], type = "l", col = "blue", xlab = "date", ylab = "Price")
-    lines(inFile$Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], model$fitted, col="red", type = "l")
-    lm_model_2 <- lm(Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]~Change..[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], data = inFile)
-    lm_model_3 <- lm(Change..[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]~Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]+High[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]+Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]+Low[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], data = inFile)
-    plot(x = inFile$Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], y = inFile$Change..[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], type = "b", col = "blue", xlab = "Dates", ylab = "Changes")
-    FT_Kplot(inFile$Open[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$High[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$Low[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)])
+    # inFile$Date <- as.Date(as.character(inFile$Date), format = '%B %d, %Y')
+    model <- loess(Price~as.numeric(as.Date(inFile$Date)), data = inFile, control=loess.control(surface="direct"))
+    par(mfrow = c(1, 1))
+    plot(x = inFile$Date, y = inFile$Price, type = "b", col = "blue", xlab = "date", ylab = "Price")
+    lines(inFile$Date, model$fitted, col="red", type = "l")
+    # plot(x = inFile$Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], y = inFile$Change..[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], type = "b", col = "blue", xlab = "Dates", ylab = "Changes")
+    # FT_Kplot(inFile$Open[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$High[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$Low[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)], inFile$Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)])
     })
 
   
@@ -195,14 +194,14 @@ server <- function(input, output, session) {
     DT::datatable(iris, options = list(lengthMenu = c(5, 30, 50), pageLength = 5))
   })
   output$result1 <- renderText({
-    inFile <- input$INR
+    inFile <- input$inputdata
     inFile <- as.data.frame(inFile)
     if (is.null(inFile))
       return(NULL)
     
     inFile <- read.csv(inFile$datapath, header = input$header)
-    inFile$Date <- as.Date(as.character(inFile$Date), format = '%B %d, %Y')
-    model <- loess(Price[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]~as.numeric(Date[which(inFile$Date == input$date1):which(inFile$Date == input$date2)]), data = inFile, control=loess.control(surface="direct"))
+    # inFile$Date <- as.Date(as.character(inFile$Date), format = '%B %d, %Y')
+    model <- loess(Price~as.numeric(as.Date(inFile$Date)), data = inFile, control=loess.control(surface="direct"))
     predict(model, as.numeric(as.Date(Sys.Date())))
   })
   
@@ -213,8 +212,9 @@ server <- function(input, output, session) {
   })
   
   # Table of selected dataset ----
-  output$table <- renderTable({
-    datasetInput()
+  output$table <- DT::renderDataTable({
+    # datasetInput()
+    DT::datatable(data = datasetInput(), options = list(orderClasses = TRUE, scrollX = TRUE, engthMenu = c(5, 30, 50), pageLength = 5))
   })
   output$downloadData <- downloadHandler(
     filename = function() {
@@ -224,7 +224,6 @@ server <- function(input, output, session) {
       write.csv(datasetInput(), file, row.names = FALSE)
     }
   )
-  
   
   # output$result1 <- rednerPrint({
   #   inFile <- input$INR
