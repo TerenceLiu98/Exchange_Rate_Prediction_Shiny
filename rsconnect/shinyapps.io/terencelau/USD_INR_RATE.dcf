@@ -5,8 +5,8 @@ account: terencelau
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1082841
-bundleId: 2322907
+bundleId: 2324504
 url: https://terencelau.shinyapps.io/USD_INR_RATE/
-when: 1565886191.11117
+when: 1565922404.39956
 asMultiple: FALSE
 asStatic: FALSE

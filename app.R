@@ -7,33 +7,39 @@ library(quantmod)
 # source("./libraries.R")
 # source("./functions.R")
 
-FT_Kplot<-function(OPEN,HIGH,LOW,CLOSE,DATE)
-{
-  N<-length(OPEN)
-  w<-0.3
-  D<-CLOSE-OPEN
-  par(family='serif')
-  # 作图
-  plot(c(1:N),CLOSE,type='n',xaxt='n',
-       xlab='Time',ylab='Price',font.axis=1.5)
-  title(main='K Curve',cex=2,col='black')
-  for(i in 1:N){
-    lines(c(i,i),c(LOW[i],HIGH[i]),col='black',lwd=1)
-    x<-c(i-w,i-w,i+w,i+w)
-    y<-c(OPEN[i],CLOSE[i],CLOSE[i],OPEN[i])
-    if(D[i]<0)
-    {
-      polygon(x,y,col='green',border='green')
-    } else
-    {
-      polygon(x,y,col='red',border='red')
-    }
-  }
-  Index<-seq(from=1,to=N,length=5)
-  Index<-round(Index)
-  Text<-DATE[Index]
-  axis(side=1,Index,labels=Text,cex.axis=1)
-}
+############### K Line Curve ########################
+
+# FT_Kplot<-function(OPEN,HIGH,LOW,CLOSE,DATE)
+# {
+#   N<-length(OPEN)
+#   w<-0.3
+#   D<-CLOSE-OPEN
+#   par(family='serif')
+#   # 作图
+#   plot(c(1:N),CLOSE,type='n',xaxt='n',
+#        xlab='Time',ylab='Price',font.axis=1.5)
+#   title(main='K Curve',cex=2,col='black')
+#   for(i in 1:N){
+#     lines(c(i,i),c(LOW[i],HIGH[i]),col='black',lwd=1)
+#     x<-c(i-w,i-w,i+w,i+w)
+#     y<-c(OPEN[i],CLOSE[i],CLOSE[i],OPEN[i])
+#     if(D[i]<0)
+#     {
+#       polygon(x,y,col='green',border='green')
+#     } else
+#     {
+#       polygon(x,y,col='red',border='red')
+#     }
+#   }
+#   Index<-seq(from=1,to=N,length=5)
+#   Index<-round(Index)
+#   Text<-DATE[Index]
+#   axis(side=1,Index,labels=Text,cex.axis=1)
+# }
+
+################################################
+
+
 
 # INR <- read.csv("USD_INR.csv", header = T)
 # INR$Date <- as.Date(as.character(INR$Date), format = '%B %d, %Y')
@@ -41,6 +47,7 @@ FT_Kplot<-function(OPEN,HIGH,LOW,CLOSE,DATE)
 # CNY <- read.csv("USD_CNY.csv", header = T)
 # CNY$Date <- as.Date(as.character(CNY$Date), format = '%B %d, %Y')
 
+################# Update Latest Data & Data Preprocessing ###################
 getFX("USD/INR",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 56),to = Sys.Date())
 getFX("USD/CNY",src = "yahoo",from = as.Date(as.numeric(Sys.Date()) - 56),to = Sys.Date())
 
@@ -55,25 +62,28 @@ CNY <- read.csv("CNY.csv", header = T)
 colnames(CNY)[1] <- 'Date'
 colnames(CNY)[2] <- 'Price'
 
+#############################################################################
 
 
 
-
+############################### The UI Part ##################################
 ui <- dashboardPage(
   skin = "black",
   dashboardHeader(title = "CERFIS"),
   dashboardSidebar(
     sidebarMenu(
+      ############### Three Menu Item #################
       menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
       menuItem("Dataset", tabName = "Dataset", icon = icon("database")),
       menuItem("About", tabName = "About", icon = icon("meh"))
+      ############### Three Menu Item #################
     )
   ),
-  ## Body content
+  ############### Body content #################
   dashboardBody(
     
     tabItems(
-      # First tab content
+      ####### First tab content ##########
       tabItem(tabName = "dashboard",
               fluidPage(
                 h3("Currency Exchange Rate Forecast Interactive System"),
@@ -102,11 +112,14 @@ ui <- dashboardPage(
                 # Copy the line below to make a text input box
                 # Copy the line below to make a text input box
               ),
-              column(4,
-                dateInput("date1", "Date:", value = "2018-08-10"),
-                dateInput("date2", "Date:", value = "2019-08-09"),
-                submitButton(text = "Submit")
-              ),
+              
+              ############# Date Widget ############
+              # column(4,
+              #   dateInput("date1", "Date:", value = "2018-08-10"),
+              #   dateInput("date2", "Date:", value = "2019-08-09"),
+              #   submitButton(text = "Submit")
+              # ),
+              ############# Date Widget ############
               column(4, 
                      tags$br(),
                      tags$br(),
@@ -150,22 +163,25 @@ ui <- dashboardPage(
                   #  tableOutput("table")
                   )
                   
-                )
-          )
-        ),
+                ),
         # First tab content
         tabItem(tabName = "About",
                 fluidPage(
-                  titlePanel("About Author"),
+                  titlePanel("About"),
+                  mainPanel(
                   h5("I am Terence Lau"),
-                  h5("My Github: @terenceliu98"),
-                  h5("My Personal Website: https://terenceliu98.github.io"),
-                  h5("Thanks to these R package: shiny, shinydashboard, DT, quantmod")
-                  
+                  tags$a(href = "https://github.com/TerenceLiu98", "My GitHub"),
+                  tags$br(),
+                  tags$a(href = "https://terenceliu98.github.io", "My Personal Website"),
+                  tags$br(),
+                  tags$br(),
+                  strong("Thanks to these R package:"), code("shiny, shinydashboard, DT, quantmod")
+                  )
+                )
                 )
     )
   )
-
+)
 server <- function(input, output, session) {
 
   output$plot1 <- renderPlot({
@@ -186,13 +202,6 @@ server <- function(input, output, session) {
 
   
   # sorted columns are colored now because CSS are attached to them
-  output$mytable2 <- DT::renderDataTable({
-    DT::datatable(CNY, options = list(orderClasses = TRUE))
-  })
-  # customize the length drop-down menu; display 5 rows per page by default
-  output$mytable3 <- DT::renderDataTable({
-    DT::datatable(iris, options = list(lengthMenu = c(5, 30, 50), pageLength = 5))
-  })
   output$result1 <- renderText({
     inFile <- input$inputdata
     inFile <- as.data.frame(inFile)
