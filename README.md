@@ -10,5 +10,11 @@ A local polynomial regression has been used in this Web App. Due to the rate's v
 
 Issue and Pull Request is welcomed
 
+## To Do
+
+-[] Delete Date widget (Previous one month data predicitng the next one data)
+-[] Adding multiple currency (Type in currency's acronym and get the output)
+-[] Multiple Modeling methods (LSTM, ANN, etc.)
+
 ## Reference
 https://github.com/wuthmone/Exchange-Rate-Forecasting-Using-Ensemble-ANN-Model
