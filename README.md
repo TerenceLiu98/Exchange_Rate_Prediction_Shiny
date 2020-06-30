@@ -17,5 +17,9 @@ Issue and Pull Request is welcomed
 - [ ] Multiple Modeling methods (LSTM, ANN, etc.)
 - [ ] Fansy UI with CSS 
 
+## Generation Two
+
+In gen 2, I would like to add more plots with different indicators.
+
 ## Reference
 https://github.com/wuthmone/Exchange-Rate-Forecasting-Using-Ensemble-ANN-Model
